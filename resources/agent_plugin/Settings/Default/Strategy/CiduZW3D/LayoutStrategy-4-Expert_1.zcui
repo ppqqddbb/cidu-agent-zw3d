@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Strategy profileType="UIProfile" environment="2" role="4-Expert">
+	<DefaultCustomizations>
+		<Insert type="RibbonMenu" name="CiduZW3DRibbonMenuZ3" topCollection="Layout_2_Z3" leftSibling="#InsertAtLast" />
+	</DefaultCustomizations>
+</Strategy>

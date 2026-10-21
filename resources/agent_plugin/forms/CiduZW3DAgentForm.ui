@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CiduZW3DAgentForm</class>
+ <widget class="ZsCc::Form" name="CiduZW3DAgentForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>720</width>
+    <height>820</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>360</width>
+    <height>480</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>cidu-agent</string>
+  </property>
+  <property name="functionName">
+   <string notr="true">CiduZW3DAgentForm</string>
+  </property>
+  <property name="mode">
+   <enum>ZsCc::Form::Float</enum>
+  </property>
+  <property name="persistent">
+   <enum>ZsCc::Form::Temporary</enum>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">ZsCc--Form, ZsCc::Form { background: #f7f8fb; border: 0; }</string>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZsCc::Form</class>
+   <extends>QDialog</extends>
+   <header>nui/CommonControls/CcForm.hpp</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

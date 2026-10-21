@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Strategy profileType="UIProfile" environment="0" role="#AllRoles">
+	<DefaultCustomizations>
+		<Insert type="RibbonPage" name="CiduZW3DPage" topCollection="Layout_0_Top" leftSibling="#InsertAtLast" />
+		<Insert type="RibbonMenu" name="CiduZW3DRibbonMenuTop" topCollection="Layout_0_Top" leftSibling="#InsertAtLast" />
+	</DefaultCustomizations>
+</Strategy>

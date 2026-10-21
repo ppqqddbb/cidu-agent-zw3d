@@ -1,0 +1,6 @@
+_cidu_autofill_is_header(cells: list) ->\
+          \ bool:\n    joined = \"\".join(_clean(cell) for cell in cells)\n    return\
+          \ any(term in joined for term in (\"设备名称\", \"设备型号/参数\", \"取得途径\", \"参数标识\"\
+          , \"数值\"))\n\n\ndef _cidu_autofill_parse_table(text: str) -> list:\n   \
+          \ rows = []\n    headers = []\n    for line in _cidu_autofill_extract_equipment_section(text).splitlines():\n\
+          \        raw = line.

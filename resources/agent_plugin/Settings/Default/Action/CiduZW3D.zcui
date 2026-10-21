@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Actions name="ZW3D" version="1700">
+	<Action name="ID_~CiduZW3DShowAgentForm" type="button">
+		<Form>CiduZW3DAgentForm</Form>
+		<Text>
+			<Ribbon>cidu-agent</Ribbon>
+			<Menu>cidu-agent</Menu>
+		</Text>
+		<Icon>CiduAgent.png</Icon>
+		<Hint>Ask Cidu for model parameters and generate a model.</Hint>
+		<Help />
+		<Desc />
+		<Script>~CiduZW3DShowAgentForm</Script>
+	</Action>
+</Actions>

@@ -1,0 +1,6 @@
+_cidu_autofill_parameters(result, signals)\n    hints = [\n        item\
+          \ for item in [\n            *_as_list(signals.get(\"model_name_hints\"\
+          )),\n            *_as_list(signals.get(\"template_hints\")),\n         \
+          \   *_as_list(signals.get(\"exact_model_hints\")),\n            *_as_list(signals.get(\"\
+          category_expansion_terms\")),\n        ]\n        if _clean(item)\n    ]\n\
+          \    keywords =

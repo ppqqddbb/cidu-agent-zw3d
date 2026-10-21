@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Strategy profileType="UIProfile" environment="3" role="#AllRoles">
+	<DefaultCustomizations>
+		<Insert type="RibbonPage" name="CiduZW3DPage" topCollection="Layout_3_Sketch" leftSibling="#InsertAtLast"/>
+	</DefaultCustomizations>
+</Strategy>

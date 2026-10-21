@@ -1,0 +1,541 @@
+[
+  {
+    "id": "1fd0fefb-5495-464b-b876-cb606112082d",
+    "version": "draft",
+    "graph": {
+      "nodes": [
+        {
+          "data": {
+            "desc": "接收用户文本和上游 OCR 插件输出文本；本 DSL 不启用视觉和文件上传。",
+            "selected": false,
+            "title": "Start",
+            "type": "start",
+            "variables": [
+              {
+                "label": "ocr_text",
+                "max_length": null,
+                "options": [],
+                "required": false,
+                "type": "paragraph",
+                "variable": "ocr_text"
+              },
+              {
+                "label": "target",
+                "max_length": null,
+                "options": [],
+                "required": false,
+                "type": "text-input",
+                "variable": "target"
+              },
+              {
+                "label": "instruction",
+                "max_length": null,
+                "options": [],
+                "required": false,
+                "type": "paragraph",
+                "variable": "instruction"
+              },
+              {
+                "label": "response_schema",
+                "max_length": null,
+                "options": [],
+                "required": false,
+                "type": "paragraph",
+                "variable": "response_schema"
+              }
+            ]
+          },
+          "height": 231,
+          "id": "start_node",
+          "position": {
+            "x": 30,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 30,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "context": {
+              "enabled": false,
+              "variable_selector": []
+            },
+            "desc": "使用硅基流动模型抽取检索线索；不在此节点做最终选型。",
+            "memory": {
+              "enabled": false,
+              "query_prompt_template": "{{#sys.query#}}\n\n{{#start_node.ocr_text#}}",
+              "window": {
+                "enabled": false,
+                "size": 10
+              }
+            },
+            "model": {
+              "completion_params": {
+                "temperature": 0.1
+              },
+              "mode": "chat",
+              "name": "Pro/moonshotai/Kimi-K2.5",
+              "provider": "langgenius/siliconflow/siliconflow"
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "你是参数化三维系统选型流程中的“检索线索提取”节点。\n\n你的任务不是选择模型，而是把用户输入和 OCR 文本整理成“Jiavu 参数化模型知识库”+ jiavu 知识图谱混合检索需要的入参。\n最终模型必须来自后续 jiavu 混合检索结果，不能由本节点猜测。\n\n只输出一个合法 JSON 对象，不要输出 Markdown、解释、代码块或额外文字。\n\nJSON 结构必须是：\n{\n  \"text\": \"合并后的原始需求文本\",\n  \"keywords\": [\"系统名、设备名、模型别名、参数名等关键词\"],\n  \"extracted_parameters\": {\n    \"原始参数名或标准参数编码\": \"原始值\"\n  }\n}\n\n提取规则：\n- 保留工程原文中的系统名、设备名、参数名、单位和值。\n- keywords 只放能帮助“Jiavu 参数化模型知识库”和 jiavu 知识图谱命中模型的词。\n- extracted_parameters 可以保留中文原始参数名，也可以使用标准编码；不要为了凑字段编造不存在的参数。\n- 如果没有明确参数，extracted_parameters 返回空对象。\n- 不要返回 selected_model、template_name、confidence 或 candidates。"
+              },
+              {
+                "role": "user",
+                "text": "用户输入：\n{{#sys.query#}}\n\nOCR 文本：\n{{#start_node.ocr_text#}}"
+              }
+            ],
+            "selected": false,
+            "structured_output": {
+              "enabled": false
+            },
+            "title": "硅基流动检索线索提取",
+            "type": "llm",
+            "variables": [],
+            "vision": {
+              "enabled": false
+            }
+          },
+          "height": 132,
+          "id": "extract_retrieval_signals",
+          "position": {
+            "x": 334,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 334,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "code": "import json\nimport re\n\n\nPARAM_PATTERNS = {\n    \"equipment_count\": r\"(?:设备数量|设备数|台数|数量)\\s*[:：]?\\s*([0-9]+)\\s*(?:台|套)?\",\n    \"design_pressure\": r\"(?:设计压力|压力)\\s*[:：]?\\s*([0-9]+(?:\\.[0-9]+)?)\\s*(?:MPa|兆帕)?\",\n    \"length\": r\"(?:长度|长)\\s*[:：]?\\s*([0-9]+(?:\\.[0-9]+)?)\\s*(?:mm|毫米)?\",\n    \"width\": r\"(?:宽度|宽)\\s*[:：]?\\s*([0-9]+(?:\\.[0-9]+)?)\\s*(?:mm|毫米)?\",\n    \"height\": r\"(?:高度|高)\\s*[:：]?\\s*([0-9]+(?:\\.[0-9]+)?)\\s*(?:mm|毫米)?\",\n}\n\nKEYWORD_PATTERNS = [\n    \"干渣\", \"干式排渣\", \"炉渣\", \"底渣\", \"渣仓\", \"冷渣\", \"输渣\",\n    \"设备数量\", \"设备数\", \"台数\", \"设计压力\", \"介质\",\n    \"盒子\", \"方块\", \"长方体\", \"箱体\", \"长宽高\", \"box\",\n]\n\n\ndef _extract_parameters(text: str) -> dict:\n    result = {}\n    for code, pattern in PARAM_PATTERNS.items():\n        match = re.search(pattern, text, re.IGNORECASE)\n        if match:\n            result[code] = match.group(1)\n    return result\n\n\ndef _extract_keywords(text: str) -> list:\n    seen = set()\n    keywords = []\n    for keyword in KEYWORD_PATTERNS:\n        if keyword.lower() in text.lower() and keyword not in seen:\n            keywords.append(keyword)\n            seen.add(keyword)\n    return keywords\n\n\ndef _strip_fence(text: str) -> str:\n    text = (text or \"\").strip()\n    match = re.match(r\"^```[a-zA-Z0-9_-]*\\s*(.*?)\\s*```$\", text, re.S)\n    return match.group(1).strip() if match else text\n\n\ndef _load_llm_json(llm_text: str) -> dict:\n    llm_text = _strip_fence(llm_text)\n    if not llm_text:\n        return {}\n    try:\n        data = json.loads(llm_text)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        match = re.search(r\"\\{.*\\}\", llm_text, re.S)\n        if match:\n            try:\n                data = json.loads(match.group(0))\n                return data if isinstance(data, dict) else {}\n            except Exception:\n                return {}\n        return {}\n\n\ndef main(\n    query: str = \"\",\n    ocr_text: str = \"\",\n    target: str = \"\",\n    instruction: str = \"\",\n    llm_text: str = \"\",\n) -> dict:\n    parts = [query or \"\", ocr_text or \"\", target or \"\", instruction or \"\"]\n    raw_text = \"\\n\".join(part.strip() for part in parts if part and part.strip())\n\n    llm_data = _load_llm_json(llm_text)\n    llm_text_value = llm_data.get(\"text\") if isinstance(llm_data.get(\"text\"), str) else \"\"\n    llm_keywords = llm_data.get(\"keywords\") if isinstance(llm_data.get(\"keywords\"), list) else []\n    llm_parameters = (\n        llm_data.get(\"extracted_parameters\")\n        if isinstance(llm_data.get(\"extracted_parameters\"), dict)\n        else {}\n    )\n\n    keywords = []\n    for item in [*llm_keywords, *_extract_keywords(raw_text)]:\n        if isinstance(item, str) and item and item not in keywords:\n            keywords.append(item)\n\n    extracted_parameters = _extract_parameters(raw_text)\n    extracted_parameters.update(llm_parameters)\n\n    signals = {\n        \"text\": llm_text_value or raw_text,\n        \"keywords\": keywords,\n        \"extracted_parameters\": extracted_parameters,\n    }\n\n    query_blocks = [\n        \"任务: 在“Jiavu 参数化模型知识库”和 jiavu 知识图谱中检索候选参数化模型，并返回模型 ID、模型名称、template_name、适用条件和参数要求。\",\n        \"需求文本:\\n\" + signals[\"text\"],\n        \"关键词: \" + \"、\".join(keywords),\n        \"已抽取参数: \" + json.dumps(extracted_parameters, ensure_ascii=False, separators=(\",\", \":\")),\n    ]\n\n    return {\n        \"retrieval_query\": \"\\n\\n\".join(block for block in query_blocks if block.strip()),\n        \"signals_json\": json.dumps(signals, ensure_ascii=False, separators=(\",\", \":\")),\n    }",
+            "code_language": "python3",
+            "desc": "只构造 jiavu 混合检索 query，不做最终选型。",
+            "outputs": {
+              "retrieval_query": {
+                "children": null,
+                "type": "string"
+              },
+              "signals_json": {
+                "children": null,
+                "type": "string"
+              }
+            },
+            "selected": false,
+            "title": "准备 jiavu 混合检索 query",
+            "type": "code",
+            "variables": [
+              {
+                "value_selector": [
+                  "sys",
+                  "query"
+                ],
+                "value_type": "string",
+                "variable": "query"
+              },
+              {
+                "value_selector": [
+                  "start_node",
+                  "ocr_text"
+                ],
+                "value_type": "string",
+                "variable": "ocr_text"
+              },
+              {
+                "value_selector": [
+                  "start_node",
+                  "target"
+                ],
+                "value_type": "string",
+                "variable": "target"
+              },
+              {
+                "value_selector": [
+                  "start_node",
+                  "instruction"
+                ],
+                "value_type": "string",
+                "variable": "instruction"
+              },
+              {
+                "value_selector": [
+                  "extract_retrieval_signals",
+                  "text"
+                ],
+                "value_type": "string",
+                "variable": "llm_text"
+              }
+            ]
+          },
+          "height": 96,
+          "id": "prepare_retrieval_query",
+          "position": {
+            "x": 638,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 638,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "dataset_ids": [
+              "6366d327-d6e5-4016-9123-a026a9c564e6"
+            ],
+            "desc": "知识库名称为“Jiavu 参数化模型知识库”，知识图谱 ID 为 019e0656-b04c-71c5-8cc6-e428b966e6c9。",
+            "graph_ids": [
+              "019e0656-b04c-71c5-8cc6-e428b966e6c9"
+            ],
+            "graph_top_k": 8,
+            "metadata_filtering_mode": "disabled",
+            "multiple_retrieval_config": {
+              "top_k": 8,
+              "score_threshold": null,
+              "reranking_mode": "reranking_model",
+              "reranking_enable": false
+            },
+            "query_attachment_selector": [],
+            "query_variable_selector": [
+              "prepare_retrieval_query",
+              "retrieval_query"
+            ],
+            "retrieval_mode": "multiple",
+            "selected": false,
+            "title": "jiavu 知识库+知识图谱混合检索",
+            "type": "hybrid-retrieval"
+          },
+          "height": 178,
+          "id": "jiavu_hybrid_retrieval",
+          "position": {
+            "x": 942,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 942,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "context": {
+              "enabled": true,
+              "variable_selector": [
+                "jiavu_hybrid_retrieval",
+                "result"
+              ]
+            },
+            "desc": "基于 jiavu 混合检索证据进行选型；只能从检索结果中选择模型。",
+            "memory": {
+              "enabled": false,
+              "query_prompt_template": "{{#sys.query#}}",
+              "window": {
+                "enabled": false,
+                "size": 10
+              },
+              "role_prefix": {
+                "user": "",
+                "assistant": ""
+              }
+            },
+            "model": {
+              "completion_params": {
+                "temperature": 0
+              },
+              "mode": "chat",
+              "name": "Pro/moonshotai/Kimi-K2.5",
+              "provider": "langgenius/siliconflow/siliconflow"
+            },
+            "prompt_template": [
+              {
+                "role": "system",
+                "text": "你是中望 3D 参数化模型选型节点。\n\n你必须基于 <jiavu_retrieval> 中的检索证据选型。检索证据来自知识库“Jiavu 参数化模型知识库”和 jiavu 知识图谱。\n不能凭常识、训练记忆或用户描述直接编造模型；selected_model、selected_model_id、template_name 必须能在检索证据的 content 或 metadata 中找到对应依据。\n如果检索证据不足以确认模型，返回 need_user_confirm=true，并把 selected_model、selected_model_id、template_name 置为空字符串。\n\n本版本只做到模型识别/选型，不做参数抽取建模；numeric 和 text 必须返回空对象。\n\n只输出一个合法 JSON 对象，不要输出 Markdown、解释、代码块或额外文字。\nJSON 结构必须是：\n{\n  \"intent\": \"select_model\",\n  \"selected_model_id\": \"模型ID；证据不足时为空字符串\",\n  \"selected_model\": \"模型名称；证据不足时为空字符串\",\n  \"model_description\": \"为什么选择该模型，必须引用检索证据中的关键命中点\",\n  \"parameter_requirements\": {\n    \"参数名\": \"说明/单位/范围/是否必填\"\n  },\n  \"template_name\": \"参数化插件模板名；证据不足时为空字符串\",\n  \"numeric\": {},\n  \"text\": {},\n  \"confidence\": 0.0,\n  \"need_user_confirm\": true,\n  \"candidates\": [\n    {\n      \"model_id\": \"候选模型ID\",\n      \"model_name\": \"候选模型名称\",\n      \"template_name\": \"候选模板名\",\n      \"score\": 0.0,\n      \"matched_by\": [\"knowledge_base\", \"knowledge_graph\"],\n      \"reason\": \"命中原因\"\n    }\n  ]\n}\n\n选型规则：\n- 优先使用知识图谱中明确的模型关系、template_name、参数要求。\n- 知识库内容用于补充模型说明、别名、适用场景和历史案例。\n- 同时命中知识库和知识图谱的候选优先级最高。\n- confidence 取 0 到 1。低于 0.8 时 need_user_confirm 必须为 true。\n- parameter_requirements 的值必须是字符串，不要输出嵌套对象。",
+                "id": "05826677-79ae-4400-a36b-cc3e8b79483e"
+              },
+              {
+                "role": "user",
+                "text": "用户输入：\n{{#sys.query#}}\n\n检索线索：\n{{#prepare_retrieval_query.signals_json#}}\n\n<jiavu_retrieval>\n{{#context#}}\n</jiavu_retrieval>",
+                "id": "efdae7d3-bf9d-45f3-90c5-48216fb42c3a"
+              }
+            ],
+            "selected": false,
+            "structured_output": {
+              "enabled": false
+            },
+            "title": "硅基流动基于 jiavu 证据选型",
+            "type": "llm",
+            "variables": [],
+            "vision": {
+              "enabled": false
+            }
+          },
+          "height": 132,
+          "id": "select_model_from_jiavu",
+          "position": {
+            "x": 1246,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 1246,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "code": "import json\nimport re\n\n\ndef _strip_fence(text: str) -> str:\n    text = (text or \"\").strip()\n    match = re.match(r\"^```[a-zA-Z0-9_-]*\\s*(.*?)\\s*```$\", text, re.S)\n    return match.group(1).strip() if match else text\n\n\ndef _load_json(text: str) -> dict:\n    text = _strip_fence(text)\n    if not text:\n        return {}\n    try:\n        data = json.loads(text)\n        return data if isinstance(data, dict) else {}\n    except Exception:\n        match = re.search(r\"\\{.*\\}\", text, re.S)\n        if not match:\n            return {}\n        try:\n            data = json.loads(match.group(0))\n            return data if isinstance(data, dict) else {}\n        except Exception:\n            return {}\n\n\ndef _as_dict(value) -> dict:\n    return value if isinstance(value, dict) else {}\n\n\ndef _as_list(value) -> list:\n    return value if isinstance(value, list) else []\n\n\ndef _string_dict(value) -> dict:\n    if not isinstance(value, dict):\n        return {}\n    result = {}\n    for key, item in value.items():\n        if key is None:\n            continue\n        if isinstance(item, str):\n            result[str(key)] = item\n        else:\n            result[str(key)] = json.dumps(item, ensure_ascii=False, separators=(\",\", \":\"))\n    return result\n\n\ndef _to_float(value, default=0.0) -> float:\n    try:\n        return float(value)\n    except Exception:\n        return default\n\n\ndef main(llm_text: str = \"\", signals_json: str = \"\") -> dict:\n    data = _load_json(llm_text)\n    signals = _load_json(signals_json)\n    candidates = _as_list(data.get(\"candidates\"))\n    first_candidate = candidates[0] if candidates and isinstance(candidates[0], dict) else {}\n\n    selected_model_id = (\n        data.get(\"selected_model_id\")\n        or data.get(\"model_id\")\n        or first_candidate.get(\"model_id\")\n        or \"\"\n    )\n    selected_model = (\n        data.get(\"selected_model\")\n        or data.get(\"model_name\")\n        or first_candidate.get(\"model_name\")\n        or selected_model_id\n        or \"\"\n    )\n    template_name = (\n        data.get(\"template_name\")\n        or first_candidate.get(\"template_name\")\n        or selected_model_id\n        or \"\"\n    )\n    model_description = (\n        data.get(\"model_description\")\n        or data.get(\"reason\")\n        or first_candidate.get(\"reason\")\n        or \"\"\n    )\n\n    confidence = _to_float(data.get(\"confidence\", first_candidate.get(\"score\", 0.0)), 0.0)\n    if confidence > 1:\n        confidence = confidence / 100.0\n    confidence = max(0.0, min(confidence, 1.0))\n\n    need_user_confirm = data.get(\"need_user_confirm\")\n    if not isinstance(need_user_confirm, bool):\n        need_user_confirm = confidence < 0.8 or not selected_model_id or not template_name\n\n    result = {\n        \"intent\": \"select_model\",\n        \"selected_model_id\": str(selected_model_id),\n        \"selected_model\": str(selected_model),\n        \"model_description\": str(model_description),\n        \"parameter_requirements\": _string_dict(data.get(\"parameter_requirements\")),\n        \"template_name\": str(template_name),\n        \"numeric\": {},\n        \"text\": {},\n        \"confidence\": confidence,\n        \"need_user_confirm\": need_user_confirm,\n        \"candidates\": candidates,\n        \"retrieval_sources\": {\n            \"knowledge_base\": \"Jiavu 参数化模型知识库\",\n            \"knowledge_graph\": \"jiavu\",\n        },\n        \"retrieval_signals\": signals,\n    }\n\n    return {\n        \"answer\": json.dumps(result, ensure_ascii=False, separators=(\",\", \":\"))\n    }",
+            "code_language": "python3",
+            "desc": "规范化为 ZW3DAgentPlugin 需要的严格 JSON；只保留选型结果，numeric/text 为空。",
+            "outputs": {
+              "answer": {
+                "children": null,
+                "type": "string"
+              }
+            },
+            "selected": true,
+            "title": "规范化选型 JSON",
+            "type": "code",
+            "variables": [
+              {
+                "value_selector": [
+                  "select_model_from_jiavu",
+                  "text"
+                ],
+                "value_type": "string",
+                "variable": "llm_text"
+              },
+              {
+                "value_selector": [
+                  "prepare_retrieval_query",
+                  "signals_json"
+                ],
+                "value_type": "string",
+                "variable": "signals_json"
+              }
+            ]
+          },
+          "height": 112,
+          "id": "normalize_selection_result",
+          "position": {
+            "x": 1550,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 1550,
+            "y": 245
+          },
+          "selected": true,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        },
+        {
+          "data": {
+            "answer": "{{#normalize_selection_result.answer#}}",
+            "desc": "返回 jiavu 混合检索选出的模型 JSON，作为 Cidu/Dify chat answer。",
+            "selected": false,
+            "title": "Answer",
+            "type": "answer",
+            "variables": []
+          },
+          "height": 147,
+          "id": "answer_node",
+          "position": {
+            "x": 1854,
+            "y": 245
+          },
+          "positionAbsolute": {
+            "x": 1854,
+            "y": 245
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "custom",
+          "width": 242
+        }
+      ],
+      "edges": [
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "start",
+            "targetType": "llm"
+          },
+          "id": "start-to-extract-retrieval-signals",
+          "source": "start_node",
+          "sourceHandle": "source",
+          "target": "extract_retrieval_signals",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        },
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "code"
+          },
+          "id": "extract-retrieval-signals-to-prepare-query",
+          "source": "extract_retrieval_signals",
+          "sourceHandle": "source",
+          "target": "prepare_retrieval_query",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        },
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "code",
+            "targetType": "hybrid-retrieval"
+          },
+          "id": "prepare-query-to-jiavu-hybrid-retrieval",
+          "source": "prepare_retrieval_query",
+          "sourceHandle": "source",
+          "target": "jiavu_hybrid_retrieval",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        },
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "hybrid-retrieval",
+            "targetType": "llm"
+          },
+          "id": "jiavu-hybrid-retrieval-to-select-model",
+          "source": "jiavu_hybrid_retrieval",
+          "sourceHandle": "source",
+          "target": "select_model_from_jiavu",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        },
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "llm",
+            "targetType": "code"
+          },
+          "id": "select-model-to-normalize",
+          "source": "select_model_from_jiavu",
+          "sourceHandle": "source",
+          "target": "normalize_selection_result",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        },
+        {
+          "data": {
+            "isInIteration": false,
+            "isInLoop": false,
+            "sourceType": "code",
+            "targetType": "answer"
+          },
+          "id": "normalize-to-answer",
+          "source": "normalize_selection_result",
+          "sourceHandle": "source",
+          "target": "answer_node",
+          "targetHandle": "target",
+          "type": "custom",
+          "zIndex": 0
+        }
+      ],
+      "viewport": {
+        "x": -734.5,
+        "y": 223.05,
+        "zoom": 0.7
+      }
+    },
+    "features": {
+      "opening_statement": "",
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false,
+        "language": "",
+        "voice": ""
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "file_upload": {
+        "image": {
+          "enabled": false,
+          "number_limits": 3,
+          "transfer_methods": []
+        },
+        "enabled": false,
+        "allowed_file_types": [
+          "image"
+        ],
+        "allowed_file_extensions": [
+          ".JPG",
+          ".JPEG",
+          ".PNG",
+          ".GIF",
+          ".WEBP",
+          ".SVG"
+        ],
+        "allowed_file_upload_methods": [],
+        "number_limits": 3,
+        "fileUploadConfig": {
+          "file_size_limit": 15,
+          "batch_count_limit": 5,
+          "file_upload_limit": 20,
+          "image_file_size_limit": 10,
+          "video_file_size_limit": 100,
+          "audio_file_size_limit": 50,
+          "workflow_file_upload_limit": 10,
+          "image_file_batch_limit": 10,
+          "single_chunk_attachment_limit": 10,
+          "attachment_image_file_size_limit": 2
+        }
+      }
+    }
+  }
+]

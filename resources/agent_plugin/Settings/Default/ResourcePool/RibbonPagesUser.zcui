@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<RibbonPages>
+	<RibbonPage name="CiduZW3DPage" text="Cidu ZW3D" visible="true">
+		<RibbonGroup name="CiduZW3DAgentGroup" text="Agent" visible="true">
+			<GroupPanel name="CiduZW3DAgentGroupPanel">
+				<Control action="ID_~CiduZW3DShowAgentForm" visible="true" buttonStyle="3" />
+			</GroupPanel>
+			<GroupMenu name="CiduZW3DAgentGroupMenu" visible="true" />
+		</RibbonGroup>
+	</RibbonPage>
+</RibbonPages>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RibbonMenus>
+	<RibbonMenu name="CiduZW3DRibbonMenuTop" text="Cidu ZW3D" visible="true">
+		<Item action="ID_~CiduZW3DShowAgentForm" visible="true" />
+	</RibbonMenu>
+	<RibbonMenu name="CiduZW3DRibbonMenuZ3" text="Cidu ZW3D" visible="true">
+		<Item action="ID_~CiduZW3DShowAgentForm" visible="true" />
+	</RibbonMenu>
+</RibbonMenus>

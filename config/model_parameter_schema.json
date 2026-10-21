@@ -1,0 +1,12 @@
+{
+  "template_name": "box",
+  "numeric": {
+    "length": 100,
+    "width": 60,
+    "height": 30
+  },
+  "text": {
+    "material": "steel",
+    "part_no": "DEMO-001"
+  }
+}

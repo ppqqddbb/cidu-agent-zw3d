@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cidu-agent</title>
+  <!-- CIDU_MARKED_SCRIPT -->
+  <!-- CIDU_PANEL_STYLE -->
+</head>
+<body>
+  <main class="shell">
+    <header class="header">
+      <div>
+        <h1 class="title"><img class="title-icon" src="data:image/png;base64,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" alt="">cidu-agent</h1>
+        <div class="subtitle">jiavu 混合检索选型、依据、参数需求</div>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="icon-btn knowledge-sync-btn"
+          id="knowledgeBtn"
+          title="更新知识库和知识图谱"
+          aria-label="更新知识库和知识图谱"
+          data-tooltip="从佳鱼数据库重新生成插件本地知识库和知识图谱；如已填写 Dify 同步配置，会同步到生产环境。">
+          <span class="sync-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="8" cy="5" rx="5" ry="2.3"></ellipse>
+              <path d="M3 5v8c0 1.3 2.2 2.3 5 2.3s5-1 5-2.3V5"></path>
+              <path d="M3 9c0 1.3 2.2 2.3 5 2.3s5-1 5-2.3"></path>
+              <path d="M15.5 8.5h2.2a2.3 2.3 0 0 1 2.3 2.3v1.7"></path>
+              <circle cx="20" cy="16.5" r="2"></circle>
+              <circle cx="14.5" cy="19" r="2"></circle>
+              <path d="M18.2 17.3l-1.9.9"></path>
+            </svg>
+          </span>
+          <span class="sync-progress-text" id="knowledgeProgressText" aria-hidden="true"></span>
+          <span class="sync-progress-bar" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="icon-btn" id="settingsBtn" title="设置">⚙</button>
+        <button type="button" class="icon-btn" id="historyBtn" title="历史会话">☰</button>
+        <button type="button" class="icon-btn" id="newChatBtn" title="新建对话">＋</button>
+      </div>
+    </header>
+
+    <div class="modal-backdrop" id="settingsModal" aria-hidden="true">
+      <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="settings-head">
+          <span id="settingsTitle">智能体设置</span>
+          <button type="button" class="icon-btn" id="closeSettingsBtn" title="关闭">×</button>
+        </div>
+        <div class="settings-body">
+          <div class="settings-section">
+            <div class="settings-section-title">智能体</div>
+            <div class="field">
+              <label for="baseUrlInput">智能体地址</label>
+              <input id="baseUrlInput" type="text" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="apiKeyInput">API Key</label>
+              <div class="password-wrap">
+                <input id="apiKeyInput" type="password" autocomplete="off" spellcheck="false">
+                <button type="button" class="password-toggle" data-target="apiKeyInput" aria-label="显示/隐藏" title="显示/隐藏">
+                  <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.79 19.79 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.16 3.75"/><path d="M9.5 9.5a3 3 0 0 0 4.24 4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">佳鱼数据库</div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="jiavuDbHostInput">地址</label>
+                <input id="jiavuDbHostInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="jiavuDbPortInput">端口</label>
+                <input id="jiavuDbPortInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+            <div class="field">
+              <label for="jiavuDbNameInput">数据库名</label>
+              <input id="jiavuDbNameInput" type="text" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="jiavuDbUserInput">用户名</label>
+                <input id="jiavuDbUserInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="jiavuDbPasswordInput">密码</label>
+                <div class="password-wrap">
+                  <input id="jiavuDbPasswordInput" type="password" autocomplete="off" spellcheck="false">
+                  <button type="button" class="password-toggle" data-target="jiavuDbPasswordInput" aria-label="显示/隐藏" title="显示/隐藏">
+                    <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.79 19.79 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.16 3.75"/><path d="M9.5 9.5a3 3 0 0 0 4.24 4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label for="jiavuModelExcelDirInput">生成模型 Excel 目录</label>
+              <input id="jiavuModelExcelDirInput" type="text" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">Dify 知识同步</div>
+            <div class="field">
+              <label for="difySyncBaseUrlInput">同步地址</label>
+              <input id="difySyncBaseUrlInput" type="text" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="difyDatasetApiKeyInput">Dataset API Key</label>
+              <div class="password-wrap">
+                <input id="difyDatasetApiKeyInput" type="password" autocomplete="off" spellcheck="false">
+                <button type="button" class="password-toggle" data-target="difyDatasetApiKeyInput" aria-label="显示/隐藏" title="显示/隐藏">
+                  <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.79 19.79 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.16 3.75"/><path d="M9.5 9.5a3 3 0 0 0 4.24 4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="difyDatasetIdInput">知识库 ID</label>
+                <input id="difyDatasetIdInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="difyKnowledgeGraphIdInput">图谱 ID</label>
+                <input id="difyKnowledgeGraphIdInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="difyDatasetIndexingTechniqueInput">索引方式</label>
+                <input id="difyDatasetIndexingTechniqueInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="difyKnowledgeBaseDocumentNameInput">文档前缀</label>
+                <input id="difyKnowledgeBaseDocumentNameInput" type="text" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">佳鱼解密服务 (jyasm-service)</div>
+            <div class="field">
+              <label for="jyasmServiceBaseUrlInput">内网地址</label>
+              <input id="jyasmServiceBaseUrlInput" type="text" autocomplete="off" spellcheck="false" placeholder="http://192.168.2.67:8765">
+            </div>
+            <div class="field">
+              <label for="jyasmServiceTokenInput">Auth Token</label>
+              <div class="password-wrap">
+                <input id="jyasmServiceTokenInput" type="password" autocomplete="off" spellcheck="false">
+                <button type="button" class="password-toggle" data-target="jyasmServiceTokenInput" aria-label="显示/隐藏" title="显示/隐藏">
+                  <svg class="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.79 19.79 0 0 1 5.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-3.16 3.75"/><path d="M9.5 9.5a3 3 0 0 0 4.24 4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="jyasmServicePublicBaseUrlInput">图片公网地址</label>
+              <input id="jyasmServicePublicBaseUrlInput" type="text" autocomplete="off" spellcheck="false" placeholder="留空则与内网地址相同">
+            </div>
+            <div class="settings-grid">
+              <div class="field">
+                <label for="jyasmServiceTriggerRefreshInput">触发增量解密</label>
+                <input id="jyasmServiceTriggerRefreshInput" type="text" autocomplete="off" spellcheck="false" placeholder="true / false">
+              </div>
+              <div class="field">
+                <label for="jyasmServiceTimeoutMsInput">超时 (ms)</label>
+                <input id="jyasmServiceTimeoutMsInput" type="text" autocomplete="off" spellcheck="false" placeholder="900000">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button type="button" id="cancelSettingsBtn">取消</button>
+          <button type="button" class="send" id="saveSettingsBtn">保存</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="history-panel" id="historyPanel">
+      <div class="history-head">
+        <span>历史会话</span>
+        <button type="button" class="icon-btn" id="closeHistoryBtn" title="关闭">×</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </aside>
+
+    <section class="chat" id="chat">
+      <div class="empty" id="empty">
+        <strong>描述你要设计的零件或结构</strong>
+        <span>我会返回选型模型、检索依据和所需参数。</span>
+      </div>
+    </section>
+
+    <footer class="composer">
+      <div class="attachments" id="attachments"></div>
+      <div class="input-wrap">
+        <textarea id="prompt" placeholder="输入选型需求"></textarea>
+        <div class="toolbar">
+          <button type="button" id="attachBtn">选择附件</button>
+          <button type="button" id="clearFilesBtn">移除附件</button>
+          <button type="button" id="clearBtn">清空</button>
+          <button type="button" class="send" id="sendBtn">发送</button>
+        </div>
+        <div class="shortcut-hint" id="shortcutHint" title="右键切换发送快捷键"></div>
+      </div>
+      <div class="status" id="status"></div>
+    </footer>
+  </main>
+
+  <!-- CIDU_PANEL_SCRIPT -->
+</body>
+</html>

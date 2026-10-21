@@ -1,0 +1,17 @@
+﻿{
+  "base_url": "http://127.0.0.1/v1",
+  "api_key": "app-your-cidu-api-key",
+  "user": "",
+  "jiavu_db_host": "",
+  "jiavu_db_port": "",
+  "jiavu_db_name": "",
+  "jiavu_db_user": "",
+  "jiavu_db_password": "",
+  "dify_sync_base_url": "",
+  "dify_dataset_api_key": "",
+  "dify_dataset_id": "",
+  "dify_knowledge_graph_id": "",
+  "dify_dataset_indexing_technique": "economy",
+  "dify_knowledge_base_document_name": "jiavu_knowledge_base.jsonl",
+  "jiavu_model_excel_dir": ""
+}

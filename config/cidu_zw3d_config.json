@@ -1,0 +1,22 @@
+{
+  "base_url": "http://ciduai.daneng.cc/v1",
+  "api_key": "app-KIrkhRrnrUNS9Cg2sTaBiDIW",
+  "user": "",
+  "jiavu_db_host": "192.168.2.67",
+  "jiavu_db_port": "3306",
+  "jiavu_db_name": "jiavusystemdata",
+  "jiavu_db_user": "jy_read",
+  "jiavu_db_password": "QDhb!20260508",
+  "dify_sync_base_url": "http://ciduai.daneng.cc/v1",
+  "dify_dataset_api_key": "dataset-SCSruW9H3bsFMvFxBk1n4eUz",
+  "dify_dataset_id": "98549248-ca4b-455d-b839-591dba20eddd",
+  "dify_knowledge_graph_id": "019e0a89-6be0-7f64-8e60-d2fdc8c0c773",
+  "dify_dataset_indexing_technique": "economy",
+  "dify_knowledge_base_document_name": "静态配置",
+  "jiavu_model_excel_dir": "D:\\temp\\excel",
+  "jyasm_service_base_url": "http://192.168.2.67:8765",
+  "jyasm_service_token": "QDhb!20260508",
+  "jyasm_service_public_base_url": "",
+  "jyasm_service_trigger_refresh": "true",
+  "jyasm_service_timeout_ms": "900000"
+}

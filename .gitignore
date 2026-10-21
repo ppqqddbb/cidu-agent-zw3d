@@ -1,0 +1,54 @@
+# Build artifacts
+build/
+dist/
+out/
+*.obj
+*.exp
+*.lib
+*.pdb
+*.ilk
+*.dll
+*.exe
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+temp/
+tests/
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+
+# Codex/Claude scratch (contains credentials, do not commit)
+.codex-work/
+.claude/
+
+# Third-party heavy SDK (download separately, see README)
+third_party/webview2/
+
+# Local config with real secrets — keep the .example.json instead
+config/cidu_zw3d_config.local.json
+
+# Logs / temp
+*.log
+*.tmp
+~$*
+
+# IExpress installer temp files
+~CiduZW3DPluginInstaller*
